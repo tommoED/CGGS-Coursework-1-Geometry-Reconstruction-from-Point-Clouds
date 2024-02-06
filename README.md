@@ -1,2 +1,2 @@
-# CGGS-Practical-1-Geometry-Reconstruction-from-Point-Clouds
-Official Repository for Practical 1 (Geometry)
+# CGGS Coursework 1 (Geometry): Reconstruction from Point Clouds
+See "CGGS Coursework 1 Geometry - Reconstruction from Point Clouds.pdf" for the CW description.
