@@ -6,6 +6,10 @@ from ReconstructionFunctions import load_off_file, compute_RBF_weights, evaluate
 
 
 if __name__ == '__main__':
+
+    ## print cwd
+    print(os.getcwd())
+
     ps.init()
 
     inputPointNormals, _ = load_off_file(os.path.join('..', 'data', 'bunny-500.off'))
@@ -45,6 +49,7 @@ if __name__ == '__main__':
     ##
     ##
     RBFValues = xyz[:,0]**2+xyz[:,1]**2+xyz[:,2]**2-0.5 #stub sphere
+
     ##
     ##
     #########################

@@ -19,6 +19,11 @@ def compute_RBF_weights(inputPoints, inputNormals, RBFFunction, epsilon, RBFCent
 
     ##RBF computation is done in this function
     w=[]  #RBF weights
+    w = np.zeros(inputPoints.shape[0])
+    
+
+
+
     RBFCentres=[] #RBF centres
     a=[] #polynomial coefficients (for Section 2)
     return w, RBFCentres, a
