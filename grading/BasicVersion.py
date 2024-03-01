@@ -33,6 +33,8 @@ if __name__ == '__main__':
             w, RBFCentres, _ = compute_RBF_weights(loaded_data['inputPoints'], loaded_data['inputNormals'],
                                                    polyharmonic,
                                                    loaded_data['currEpsilon'])
+        
+
 
             RBFValues = evaluate_RBF(loaded_data['xyz'], RBFCentres, polyharmonic, w)
 

@@ -3,6 +3,8 @@ import polyscope as ps
 import numpy as np
 from skimage import measure
 from ReconstructionFunctions import load_off_file, compute_RBF_weights, evaluate_RBF
+from ReconstructionFunctions import polyharmonic
+
 
 
 if __name__ == '__main__':
@@ -48,7 +50,11 @@ if __name__ == '__main__':
     ## you code of computation and evaluation goes here
     ##
     ##
-    RBFValues = xyz[:,0]**2+xyz[:,1]**2+xyz[:,2]**2-0.5 #stub sphere
+    w, RBFCentres, a = compute_RBF_weights(inputPoints, inputNormals, polyharmonic, 0.01, useOffPoints=True, sparsify=False)
+
+
+
+    RBFValues = evaluate_RBF(xyz, RBFCentres, polyharmonic, w, a=a)
 
     ##
     ##

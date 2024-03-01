@@ -8,9 +8,9 @@
             "name": "Debug Reconstruction",
             "type": "debugpy",
             "request": "launch",
-            "program": "Reconstruction.py",
+            "program": "BasicVersion.py",
             "console": "integratedTerminal",
-            "cwd": "${workspaceFolder}\\code",
+            "cwd": "${workspaceFolder}/grading",
         }
     ]
 }
