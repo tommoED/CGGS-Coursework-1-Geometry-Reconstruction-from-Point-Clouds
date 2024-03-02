@@ -26,6 +26,25 @@ def biharmonic(r):
     return r
 
 
+def generate_Q(RBFCentres, l, SPACE_DIM = 3):
+    # Generate all indices up to l
+    indices = np.arange(l + 1)
+    
+    # Generate all combinations of indices where the sum is less than or equal to l
+    indices_combinations = np.array(np.meshgrid(*[indices] * SPACE_DIM)).T.reshape(-1, SPACE_DIM)
+    indices_combinations = indices_combinations[np.sum(indices_combinations, axis=1) <= l]
+    
+    # Initialize Q with the correct shape
+    Q = np.zeros((RBFCentres.shape[0], indices_combinations.shape[0]))
+    
+    # Compute the values for Q using broadcasting
+    RBFCentres_bc = RBFCentres[:, np.newaxis, :]  # Add new axis for broadcasting
+    indices_combinations_bc = indices_combinations[np.newaxis, :, :]  # Add new axis for broadcasting
+    
+    Q = np.prod(np.power(RBFCentres_bc, indices_combinations_bc), axis=2)
+    
+    return Q
+
 def compute_RBF_weights(inputPoints, inputNormals, RBFFunction, epsilon, RBFCentreIndices=[], useOffPoints=True,
                         sparsify=False, l=-1):
     SPACE_DIM = 3
@@ -54,36 +73,17 @@ def compute_RBF_weights(inputPoints, inputNormals, RBFFunction, epsilon, RBFCent
             
     target_vals = np.repeat([0, epsilon, -epsilon], inputPoints.shape[0])
 
-    # LU_factorization = scipy.linalg.lu_factor(RBFMatrix)
+    if l == -1:
+        LU_factorization = scipy.linalg.lu_factor(RBFMatrix)
 
-    # weights = scipy.linalg.lu_solve(LU_factorization, target_vals)
+        weights = scipy.linalg.lu_solve(LU_factorization, target_vals)
 
+        return weights, RBFCentres, []
     
-    ## calculate polynomial coefficients
-    
-    ## indices (integers < l)
-    indices = np.arange(l+1)
-    print (indices)
-    ## produce all combinations of indices where the sum of the indices is less than or equal to l
-    indices_combinations = np.array(np.meshgrid(*[indices]*SPACE_DIM)).T.reshape(-1, SPACE_DIM)
-
-    indices_combinations = indices_combinations[indices_combinations.sum(axis=1) <= l]
 
 
-    Q = np.zeros((RBFCentres.shape[0], indices_combinations.shape[0]))
-    
-    # Q[:, 0] = 1
 
-    # for i, combination in enumerate(indices_combinations):
-    #     Q[:, i] = np.prod(np.power(RBFCentres, combination), axis=1)
-
-    RBFCentres_bc = RBFCentres[:, np.newaxis, :]
-    indices_combinations_bc = indices_combinations[np.newaxis, :, :]
-
-
-    Q = np.prod(
-        np.power(RBFCentres_bc, indices_combinations_bc)
-    , axis=2)
+    Q = generate_Q(RBFCentres, l)
 
     assert RBFMatrix.shape[0] == Q.shape[0], "Q: {} RBFMatrix: {}".format(Q.shape, RBFMatrix.shape)
 
@@ -109,10 +109,10 @@ def compute_RBF_weights(inputPoints, inputNormals, RBFFunction, epsilon, RBFCent
 
     Solution = scipy.linalg.lu_solve(LU_factorization, target_vals)
 
-    weights = Solution[:RBFCentres.shape[0]]
-    a =       Solution[RBFCentres.shape[0]:]
-    
 
+    weights = Solution[:RBFCentres.shape[0] ]
+    a       = Solution[ RBFCentres.shape[0]:]
+    
     return weights, RBFCentres, a
 
 
@@ -120,14 +120,17 @@ def evaluate_RBF(xyz, centres, RBFFunction, weights, l=-1, a=[]):
     """
     Evaluate the RBF function at the given points.
     """
-    
 
-    distances = distance.cdist(xyz, centres, 'euclidean')
+    ## F(x) = Q*a + A*w
 
-    values = np.dot(RBFFunction(distances), weights)
+    A = distance.cdist(xyz, centres, 'euclidean')
 
-    if RBFFunction is polyharmonic:
-        values += np.dot(xyz, a[0]) + a[1]
+    values = np.dot(RBFFunction(A), weights)
 
+    if l != -1:
+
+        Q = generate_Q(xyz, l)
+
+        values = values + np.dot(Q, a)
 
     return values
