@@ -50,9 +50,8 @@ if __name__ == '__main__':
     ## you code of computation and evaluation goes here
     ##
     ##
+    
     w, RBFCentres, a = compute_RBF_weights(inputPoints, inputNormals, polyharmonic, 0.01, useOffPoints=True, sparsify=False)
-
-
 
     RBFValues = evaluate_RBF(xyz, RBFCentres, polyharmonic, w, a=a)
 
